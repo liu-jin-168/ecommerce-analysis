@@ -144,3 +144,34 @@ user_summary['value_level'] = user_summary.apply(user_value, axis=1)
 
 print(user_summary['value_level'].value_counts())
 print(user_summary['value_level'].value_counts(normalize=True))
+
+import numpy as np
+import pandas as pd
+from scipy import stats
+
+# 1. 模拟数据：A 组（旧版）1000 人，B 组（新版）1000 人
+np.random.seed(42)
+
+# A 组转化率 10%，B 组转化率 13%
+a_converted = np.random.binomial(1, 0.10, 1000)
+b_converted = np.random.binomial(1, 0.13, 1000)
+
+# 2. 算转化率
+a_rate = a_converted.mean()
+b_rate = b_converted.mean()
+
+print(f"A 组转化率: {a_rate:.2%}")
+print(f"B 组转化率: {b_rate:.2%}")
+
+# 3. 卡方检验
+contingency = [[a_converted.sum(), 1000 - a_converted.sum()],
+               [b_converted.sum(), 1000 - b_converted.sum()]]
+
+chi2, p_value, dof, expected = stats.chi2_contingency(contingency)
+print(f"p 值: {p_value:.4f}")
+
+# 4. 判断
+if p_value < 0.05:
+    print("结论：B 组显著优于 A 组，建议上线新版。")
+else:
+    print("结论：两组差异不显著，不能确定新版有效。")
